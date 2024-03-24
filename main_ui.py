@@ -715,6 +715,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_7.setSpacing(0)
         self.horizontalLayout_7.setObjectName("horizontalLayout_7")
         self.label_2 = QtWidgets.QLabel(self.frame_4)
+        self.label_2.setMinimumSize(QtCore.QSize(70, 0))
         font = QtGui.QFont()
         font.setFamily("Segoe UI")
         font.setPointSize(12)
@@ -722,6 +723,7 @@ class Ui_MainWindow(object):
         font.setItalic(False)
         font.setWeight(75)
         self.label_2.setFont(font)
+        self.label_2.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_2.setObjectName("label_2")
         self.horizontalLayout_7.addWidget(self.label_2)
         self.txtID = QtWidgets.QLineEdit(self.frame_4)
@@ -730,15 +732,14 @@ class Ui_MainWindow(object):
 "#txtID {\n"
 "    background-color: white;\n"
 "    color: rgb(0, 0, 0);\n"
-"    border: 1px solid transparent;  /* Initially, set a transparent border */\n"
+"    border: 1px solid grey;  /* Initially, set a transparent border */\n"
 "    font: bold 11pt \"Segoe UI\";\n"
 "\n"
 "}\n"
 "\n"
 "#txtID:focus {\n"
-"    border: 2px solid rgb(85, 170, 255);  /* Change the border color when the button is\n"
-" focused/clicked */\n"
-"    border: 1px solid grey;  /* Change the border color when the button is focused/clicked */\n"
+"\n"
+"    border: 2px solid grey;  /* Change the border color when the button is focused/clicked */\n"
 "\n"
 "}")
         self.txtID.setObjectName("txtID")
@@ -753,6 +754,8 @@ class Ui_MainWindow(object):
         self.horizontalLayout_8.setSpacing(0)
         self.horizontalLayout_8.setObjectName("horizontalLayout_8")
         self.label_3 = QtWidgets.QLabel(self.frame_5)
+        self.label_3.setMinimumSize(QtCore.QSize(70, 0))
+        self.label_3.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_3.setObjectName("label_3")
         self.horizontalLayout_8.addWidget(self.label_3)
         self.txtWO = QtWidgets.QLineEdit(self.frame_5)
@@ -761,14 +764,14 @@ class Ui_MainWindow(object):
 "#txtWO {\n"
 "    background-color: rgb(255, 255, 255);\n"
 "    color: rgb(0, 0, 0);\n"
-"    border: 1px solid transparent;  /* Initially, set a transparent border */\n"
+"    border: 1px solid grey;  /* Initially, set a transparent border */\n"
 "    font: bold 11pt \"Segoe UI\";\n"
 "\n"
 "}\n"
 "\n"
 "#txtWO:focus {\n"
-"    border: 2px solid rgb(85, 170, 255);  /* Change the border color when the button is focused/clicked */\n"
-"    border: 1px solid grey;  /* Change the border color when the button is focused/clicked */\n"
+"\n"
+"    border: 2px solid grey;  /* Change the border color when the button is focused/clicked */\n"
 "\n"
 "}")
         self.txtWO.setObjectName("txtWO")
@@ -783,6 +786,8 @@ class Ui_MainWindow(object):
         self.horizontalLayout_9.setSpacing(0)
         self.horizontalLayout_9.setObjectName("horizontalLayout_9")
         self.label_4 = QtWidgets.QLabel(self.frame_6)
+        self.label_4.setMinimumSize(QtCore.QSize(70, 0))
+        self.label_4.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_4.setObjectName("label_4")
         self.horizontalLayout_9.addWidget(self.label_4)
         self.txtPT = QtWidgets.QLineEdit(self.frame_6)
@@ -791,14 +796,13 @@ class Ui_MainWindow(object):
 "#txtPT {\n"
 "    background-color: rgb(255, 255, 255);\n"
 "    color: rgb(0, 0, 0);\n"
-"    border: 1px solid transparent;  /* Initially, set a transparent border */\n"
+"    border: 1px solid grey;  /* Initially, set a transparent border */\n"
 "    font: bold 11pt \"Segoe UI\";\n"
 "\n"
 "}\n"
 "\n"
 "#txtPT:focus {\n"
-"    border: 2px solid rgb(85, 170, 255);  /* Change the border color when the button is focused/clicked */\n"
-"    border: 1px solid grey;  /* Change the border color when the button is focused/clicked */\n"
+"    border: 2px solid grey;  /* Change the border color when the button is focused/clicked */\n"
 "\n"
 "}")
         self.txtPT.setObjectName("txtPT")
@@ -813,6 +817,8 @@ class Ui_MainWindow(object):
         self.horizontalLayout_10.setSpacing(0)
         self.horizontalLayout_10.setObjectName("horizontalLayout_10")
         self.label_5 = QtWidgets.QLabel(self.frame_7)
+        self.label_5.setMinimumSize(QtCore.QSize(70, 0))
+        self.label_5.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_5.setObjectName("label_5")
         self.horizontalLayout_10.addWidget(self.label_5)
         self.txtIssue = QtWidgets.QLineEdit(self.frame_7)
@@ -821,14 +827,14 @@ class Ui_MainWindow(object):
 "#txtIssue {\n"
 "    background-color: rgb(255, 255, 255);\n"
 "    color: rgb(0, 0, 0);\n"
-"    border: 1px solid transparent;  /* Initially, set a transparent border */\n"
+"    border: 1px solid grey;  /* Initially, set a transparent border */\n"
 "    font: bold 11pt \"Segoe UI\";\n"
 "\n"
 "}\n"
 "\n"
 "#txtIssue:focus {\n"
-"    border: 2px solid rgb(85, 170, 255);  /* Change the border color when the button is focused/clicked */\n"
-"    border: 1px solid grey;  /* Change the border color when the button is focused/clicked */\n"
+"\n"
+"    border: 2px solid grey;  /* Change the border color when the button is focused/clicked */\n"
 "\n"
 "}")
         self.txtIssue.setObjectName("txtIssue")
@@ -842,14 +848,16 @@ class Ui_MainWindow(object):
         self.frame_2.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_2.setObjectName("frame_2")
         self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.frame_2)
-        self.verticalLayout_3.setContentsMargins(11, 11, -1, -1)
+        self.verticalLayout_3.setContentsMargins(11, 0, -1, 0)
+        self.verticalLayout_3.setSpacing(0)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
         self.frame_9 = QtWidgets.QFrame(self.frame_2)
         self.frame_9.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_9.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_9.setObjectName("frame_9")
         self.verticalLayout_8 = QtWidgets.QVBoxLayout(self.frame_9)
-        self.verticalLayout_8.setContentsMargins(0, -1, 0, -1)
+        self.verticalLayout_8.setContentsMargins(0, 0, 0, 30)
+        self.verticalLayout_8.setSpacing(12)
         self.verticalLayout_8.setObjectName("verticalLayout_8")
         self.btnOther = QtWidgets.QPushButton(self.frame_9)
         self.btnOther.setMinimumSize(QtCore.QSize(170, 60))
@@ -872,8 +880,30 @@ class Ui_MainWindow(object):
         self.btnOther.setDefault(True)
         self.btnOther.setFlat(False)
         self.btnOther.setObjectName("btnOther")
-        self.verticalLayout_8.addWidget(self.btnOther)
-        self.verticalLayout_3.addWidget(self.frame_9)
+        self.verticalLayout_8.addWidget(self.btnOther, 0, QtCore.Qt.AlignVCenter)
+        self.btnPool = QtWidgets.QPushButton(self.frame_9)
+        self.btnPool.setMinimumSize(QtCore.QSize(170, 60))
+        self.btnPool.setMaximumSize(QtCore.QSize(170, 16777215))
+        self.btnPool.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.btnPool.setStyleSheet("\n"
+"#btnPool{\n"
+"\n"
+"background-color:#D6D3CE;\n"
+"font: bold 12pt \"Arial\";\n"
+"color:black;\n"
+"border-radius:0px;\n"
+"border:none;\n"
+"\n"
+"}\n"
+"#btnPool:hover {\n"
+"background-color:#D6D3CE;\n"
+"}")
+        self.btnPool.setAutoDefault(False)
+        self.btnPool.setDefault(True)
+        self.btnPool.setFlat(False)
+        self.btnPool.setObjectName("btnPool")
+        self.verticalLayout_8.addWidget(self.btnPool)
+        self.verticalLayout_3.addWidget(self.frame_9, 0, QtCore.Qt.AlignVCenter)
         self.horizontalLayout_5.addWidget(self.frame_2)
         self.verticalLayout.addWidget(self.frame)
         self.BottomButtonsFrame = QtWidgets.QFrame(self.timePage)
@@ -992,6 +1022,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_37.setSpacing(0)
         self.horizontalLayout_37.setObjectName("horizontalLayout_37")
         self.label_22 = QtWidgets.QLabel(self.frame_45)
+        self.label_22.setMinimumSize(QtCore.QSize(60, 0))
         font = QtGui.QFont()
         font.setFamily("Segoe UI")
         font.setPointSize(12)
@@ -999,6 +1030,7 @@ class Ui_MainWindow(object):
         font.setItalic(False)
         font.setWeight(75)
         self.label_22.setFont(font)
+        self.label_22.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_22.setObjectName("label_22")
         self.horizontalLayout_37.addWidget(self.label_22)
         self.txtID_2 = QtWidgets.QLineEdit(self.frame_45)
@@ -1007,13 +1039,13 @@ class Ui_MainWindow(object):
 "#txtID_2 {\n"
 "    background-color: white;\n"
 "    color: rgb(0, 0, 0);\n"
-"    border: 1px solid transparent;  /* Initially, set a transparent border */\n"
+"    border: 1px solid grey;  /* Initially, set a transparent border */\n"
 "    font: bold 11pt \"Segoe UI\";\n"
 "\n"
 "}\n"
 "\n"
 "#txtID_2:focus {\n"
-"    border: 1px solid grey;  /* Change the border color when the button is focused/clicked */\n"
+"    border: 2px solid grey;  /* Change the border color when the button is focused/clicked */\n"
 "}")
         self.txtID_2.setObjectName("txtID_2")
         self.horizontalLayout_37.addWidget(self.txtID_2)
@@ -1027,7 +1059,8 @@ class Ui_MainWindow(object):
         self.horizontalLayout_38.setSpacing(0)
         self.horizontalLayout_38.setObjectName("horizontalLayout_38")
         self.label_23 = QtWidgets.QLabel(self.frame_46)
-        self.label_23.setMaximumSize(QtCore.QSize(130, 16777215))
+        self.label_23.setMaximumSize(QtCore.QSize(60, 16777215))
+        self.label_23.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_23.setObjectName("label_23")
         self.horizontalLayout_38.addWidget(self.label_23)
         self.cmbxWO = QtWidgets.QComboBox(self.frame_46)
@@ -1060,7 +1093,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_40.setSpacing(0)
         self.horizontalLayout_40.setObjectName("horizontalLayout_40")
         self.verticalLayout_34.addWidget(self.frame_48)
-        self.verticalLayout_33.addWidget(self.MainInputFrame_6, 0, QtCore.Qt.AlignHCenter|QtCore.Qt.AlignTop)
+        self.verticalLayout_33.addWidget(self.MainInputFrame_6, 0, QtCore.Qt.AlignHCenter|QtCore.Qt.AlignVCenter)
         self.horizontalLayout_36.addWidget(self.frame_42)
         self.frame_49 = QtWidgets.QFrame(self.frame_37)
         self.frame_49.setMaximumSize(QtCore.QSize(200, 16777215))
@@ -1179,6 +1212,289 @@ class Ui_MainWindow(object):
         self.frame_52.setObjectName("frame_52")
         self.verticalLayout_38.addWidget(self.frame_52)
         self.stackedWidget.addWidget(self.otherPage)
+        self.poolPage = QtWidgets.QWidget()
+        self.poolPage.setObjectName("poolPage")
+        self.horizontalLayout_27 = QtWidgets.QHBoxLayout(self.poolPage)
+        self.horizontalLayout_27.setObjectName("horizontalLayout_27")
+        self.frame_8 = QtWidgets.QFrame(self.poolPage)
+        self.frame_8.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.frame_8.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame_8.setObjectName("frame_8")
+        self.verticalLayout_23 = QtWidgets.QVBoxLayout(self.frame_8)
+        self.verticalLayout_23.setObjectName("verticalLayout_23")
+        self.frame_27 = QtWidgets.QFrame(self.frame_8)
+        self.frame_27.setMinimumSize(QtCore.QSize(0, 300))
+        self.frame_27.setMaximumSize(QtCore.QSize(16777215, 16777215))
+        self.frame_27.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.frame_27.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame_27.setObjectName("frame_27")
+        self.verticalLayout_21 = QtWidgets.QVBoxLayout(self.frame_27)
+        self.verticalLayout_21.setObjectName("verticalLayout_21")
+        self.MainInputFrame_5 = QtWidgets.QFrame(self.frame_27)
+        self.MainInputFrame_5.setMinimumSize(QtCore.QSize(530, 0))
+        self.MainInputFrame_5.setMaximumSize(QtCore.QSize(16777215, 350))
+        self.MainInputFrame_5.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.MainInputFrame_5.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.MainInputFrame_5.setObjectName("MainInputFrame_5")
+        self.verticalLayout_22 = QtWidgets.QVBoxLayout(self.MainInputFrame_5)
+        self.verticalLayout_22.setContentsMargins(80, 0, 0, 0)
+        self.verticalLayout_22.setSpacing(12)
+        self.verticalLayout_22.setObjectName("verticalLayout_22")
+        self.frame_28 = QtWidgets.QFrame(self.MainInputFrame_5)
+        self.frame_28.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.frame_28.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame_28.setObjectName("frame_28")
+        self.horizontalLayout_29 = QtWidgets.QHBoxLayout(self.frame_28)
+        self.horizontalLayout_29.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_29.setSpacing(0)
+        self.horizontalLayout_29.setObjectName("horizontalLayout_29")
+        self.label_18 = QtWidgets.QLabel(self.frame_28)
+        self.label_18.setMinimumSize(QtCore.QSize(70, 0))
+        font = QtGui.QFont()
+        font.setFamily("Segoe UI")
+        font.setPointSize(12)
+        font.setBold(True)
+        font.setItalic(False)
+        font.setWeight(75)
+        self.label_18.setFont(font)
+        self.label_18.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_18.setObjectName("label_18")
+        self.horizontalLayout_29.addWidget(self.label_18)
+        self.txtID3 = QtWidgets.QLineEdit(self.frame_28)
+        self.txtID3.setMinimumSize(QtCore.QSize(0, 42))
+        self.txtID3.setStyleSheet("\n"
+"#txtID3 {\n"
+"    background-color: white;\n"
+"    color: rgb(0, 0, 0);\n"
+"    border: 1px solid grey;  /* Initially, set a transparent border */\n"
+"    font: bold 11pt \"Segoe UI\";\n"
+"\n"
+"}\n"
+"\n"
+"#txtID3:focus {\n"
+"\n"
+"    border: 2px solid grey;  /* Change the border color when the button is focused/clicked */\n"
+"\n"
+"}")
+        self.txtID3.setObjectName("txtID3")
+        self.horizontalLayout_29.addWidget(self.txtID3)
+        self.verticalLayout_22.addWidget(self.frame_28)
+        self.frame_29 = QtWidgets.QFrame(self.MainInputFrame_5)
+        self.frame_29.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.frame_29.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame_29.setObjectName("frame_29")
+        self.horizontalLayout_30 = QtWidgets.QHBoxLayout(self.frame_29)
+        self.horizontalLayout_30.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_30.setSpacing(0)
+        self.horizontalLayout_30.setObjectName("horizontalLayout_30")
+        self.label_19 = QtWidgets.QLabel(self.frame_29)
+        self.label_19.setMinimumSize(QtCore.QSize(70, 0))
+        self.label_19.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_19.setObjectName("label_19")
+        self.horizontalLayout_30.addWidget(self.label_19)
+        self.txtWO3 = QtWidgets.QLineEdit(self.frame_29)
+        self.txtWO3.setMinimumSize(QtCore.QSize(0, 42))
+        self.txtWO3.setStyleSheet("\n"
+"#txtWO3 {\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    color: rgb(0, 0, 0);\n"
+"    border: 1px solid grey;  /* Initially, set a transparent border */\n"
+"    font: bold 11pt \"Segoe UI\";\n"
+"\n"
+"}\n"
+"\n"
+"#txtWO3:focus {\n"
+"\n"
+"    border: 2px solid grey;  /* Change the border color when the button is focused/clicked */\n"
+"\n"
+"}")
+        self.txtWO3.setObjectName("txtWO3")
+        self.horizontalLayout_30.addWidget(self.txtWO3)
+        self.verticalLayout_22.addWidget(self.frame_29)
+        self.frame_30 = QtWidgets.QFrame(self.MainInputFrame_5)
+        self.frame_30.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.frame_30.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame_30.setObjectName("frame_30")
+        self.horizontalLayout_31 = QtWidgets.QHBoxLayout(self.frame_30)
+        self.horizontalLayout_31.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_31.setSpacing(0)
+        self.horizontalLayout_31.setObjectName("horizontalLayout_31")
+        self.label_20 = QtWidgets.QLabel(self.frame_30)
+        self.label_20.setMinimumSize(QtCore.QSize(70, 0))
+        self.label_20.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_20.setObjectName("label_20")
+        self.horizontalLayout_31.addWidget(self.label_20)
+        self.txtPT3 = QtWidgets.QLineEdit(self.frame_30)
+        self.txtPT3.setMinimumSize(QtCore.QSize(0, 42))
+        self.txtPT3.setStyleSheet("\n"
+"#txtPT3 {\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    color: rgb(0, 0, 0);\n"
+"    border: 1px solid grey;  /* Initially, set a transparent border */\n"
+"    font: bold 11pt \"Segoe UI\";\n"
+"\n"
+"}\n"
+"\n"
+"#txtPT3:focus {\n"
+"    border: 2px solid grey;  /* Change the border color when the button is focused/clicked */\n"
+"\n"
+"}")
+        self.txtPT3.setObjectName("txtPT3")
+        self.horizontalLayout_31.addWidget(self.txtPT3)
+        self.verticalLayout_22.addWidget(self.frame_30)
+        self.frame_31 = QtWidgets.QFrame(self.MainInputFrame_5)
+        self.frame_31.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.frame_31.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame_31.setObjectName("frame_31")
+        self.horizontalLayout_32 = QtWidgets.QHBoxLayout(self.frame_31)
+        self.horizontalLayout_32.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_32.setSpacing(0)
+        self.horizontalLayout_32.setObjectName("horizontalLayout_32")
+        self.label_21 = QtWidgets.QLabel(self.frame_31)
+        self.label_21.setMinimumSize(QtCore.QSize(70, 0))
+        self.label_21.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_21.setObjectName("label_21")
+        self.horizontalLayout_32.addWidget(self.label_21)
+        self.txtIssue3 = QtWidgets.QLineEdit(self.frame_31)
+        self.txtIssue3.setMinimumSize(QtCore.QSize(0, 42))
+        self.txtIssue3.setStyleSheet("\n"
+"#txtIssue3 {\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    color: rgb(0, 0, 0);\n"
+"    border: 1px solid grey;  /* Initially, set a transparent border */\n"
+"    font: bold 11pt \"Segoe UI\";\n"
+"\n"
+"}\n"
+"\n"
+"#txtIssue3:focus {\n"
+"\n"
+"    border: 2px solid grey;  /* Change the border color when the button is focused/clicked */\n"
+"\n"
+"}")
+        self.txtIssue3.setObjectName("txtIssue3")
+        self.horizontalLayout_32.addWidget(self.txtIssue3)
+        self.verticalLayout_22.addWidget(self.frame_31)
+        self.verticalLayout_21.addWidget(self.MainInputFrame_5, 0, QtCore.Qt.AlignHCenter|QtCore.Qt.AlignTop)
+        self.verticalLayout_23.addWidget(self.frame_27)
+        self.BottomButtonsFrame_2 = QtWidgets.QFrame(self.frame_8)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.BottomButtonsFrame_2.sizePolicy().hasHeightForWidth())
+        self.BottomButtonsFrame_2.setSizePolicy(sizePolicy)
+        self.BottomButtonsFrame_2.setMaximumSize(QtCore.QSize(16777215, 60))
+        self.BottomButtonsFrame_2.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.BottomButtonsFrame_2.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.BottomButtonsFrame_2.setObjectName("BottomButtonsFrame_2")
+        self.horizontalLayout_28 = QtWidgets.QHBoxLayout(self.BottomButtonsFrame_2)
+        self.horizontalLayout_28.setContentsMargins(0, 5, 0, 0)
+        self.horizontalLayout_28.setSpacing(12)
+        self.horizontalLayout_28.setObjectName("horizontalLayout_28")
+        self.btnStart3 = QtWidgets.QPushButton(self.BottomButtonsFrame_2)
+        self.btnStart3.setMinimumSize(QtCore.QSize(170, 60))
+        self.btnStart3.setMaximumSize(QtCore.QSize(170, 16777215))
+        self.btnStart3.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.btnStart3.setStyleSheet("\n"
+"#btnStart3{\n"
+"\n"
+"background-color:#D6D3CE;\n"
+"font: bold 12pt \"Arial\";\n"
+"color:black;\n"
+"border-radius:0px;\n"
+"border:none;\n"
+"}\n"
+"#btnStart3:hover {\n"
+"background-color:#D6D3CE;\n"
+"}")
+        self.btnStart3.setObjectName("btnStart3")
+        self.horizontalLayout_28.addWidget(self.btnStart3)
+        self.btnPause3 = QtWidgets.QPushButton(self.BottomButtonsFrame_2)
+        self.btnPause3.setMinimumSize(QtCore.QSize(170, 60))
+        self.btnPause3.setMaximumSize(QtCore.QSize(170, 16777215))
+        self.btnPause3.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.btnPause3.setStyleSheet("\n"
+"#btnPause3{\n"
+"\n"
+"background-color:#D6D3CE;\n"
+"font: bold 12pt \"Arial\";\n"
+"color:black;\n"
+"border-radius:0px;\n"
+"border:none;\n"
+"\n"
+"}\n"
+"#btnPause3:hover {\n"
+"background-color:#D6D3CE;\n"
+"}")
+        self.btnPause3.setObjectName("btnPause3")
+        self.horizontalLayout_28.addWidget(self.btnPause3)
+        self.btnFinish3 = QtWidgets.QPushButton(self.BottomButtonsFrame_2)
+        self.btnFinish3.setMinimumSize(QtCore.QSize(170, 60))
+        self.btnFinish3.setMaximumSize(QtCore.QSize(170, 16777215))
+        self.btnFinish3.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.btnFinish3.setStyleSheet("\n"
+"#btnFinish3{\n"
+"\n"
+"background-color:#D6D3CE;\n"
+"font: bold 12pt \"Arial\";\n"
+"color:black;\n"
+"border-radius:0px;\n"
+"border:none;\n"
+"\n"
+"}\n"
+"#btnFinish3:hover {\n"
+"background-color:#D6D3CE;\n"
+"}")
+        self.btnFinish3.setObjectName("btnFinish3")
+        self.horizontalLayout_28.addWidget(self.btnFinish3)
+        self.verticalLayout_23.addWidget(self.BottomButtonsFrame_2)
+        self.frame_25 = QtWidgets.QFrame(self.frame_8)
+        self.frame_25.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.frame_25.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame_25.setObjectName("frame_25")
+        self.verticalLayout_23.addWidget(self.frame_25)
+        self.horizontalLayout_27.addWidget(self.frame_8)
+        self.frame_24 = QtWidgets.QFrame(self.poolPage)
+        self.frame_24.setMinimumSize(QtCore.QSize(200, 0))
+        self.frame_24.setMaximumSize(QtCore.QSize(200, 16777215))
+        self.frame_24.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.frame_24.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame_24.setObjectName("frame_24")
+        self.verticalLayout_24 = QtWidgets.QVBoxLayout(self.frame_24)
+        self.verticalLayout_24.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_24.setSpacing(0)
+        self.verticalLayout_24.setObjectName("verticalLayout_24")
+        self.frame_62 = QtWidgets.QFrame(self.frame_24)
+        self.frame_62.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.frame_62.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame_62.setObjectName("frame_62")
+        self.verticalLayout_47 = QtWidgets.QVBoxLayout(self.frame_62)
+        self.verticalLayout_47.setContentsMargins(0, -1, 0, -1)
+        self.verticalLayout_47.setObjectName("verticalLayout_47")
+        self.btnBack2 = QtWidgets.QPushButton(self.frame_62)
+        self.btnBack2.setMinimumSize(QtCore.QSize(170, 60))
+        self.btnBack2.setMaximumSize(QtCore.QSize(170, 16777215))
+        self.btnBack2.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.btnBack2.setStyleSheet("\n"
+"#btnBack2{\n"
+"\n"
+"background-color:#D6D3CE;\n"
+"font: bold 12pt \"Arial\";\n"
+"color:black;\n"
+"border-radius:0px;\n"
+"border:none;\n"
+"\n"
+"}\n"
+"#btnBack2:hover {\n"
+"background-color:#D6D3CE;\n"
+"}")
+        self.btnBack2.setAutoDefault(False)
+        self.btnBack2.setDefault(True)
+        self.btnBack2.setFlat(False)
+        self.btnBack2.setObjectName("btnBack2")
+        self.verticalLayout_47.addWidget(self.btnBack2, 0, QtCore.Qt.AlignHCenter)
+        self.verticalLayout_24.addWidget(self.frame_62)
+        self.horizontalLayout_27.addWidget(self.frame_24)
+        self.stackedWidget.addWidget(self.poolPage)
         self.horizontalLayout_2.addWidget(self.stackedWidget)
         self.horizontalLayout_4.addWidget(self.pagesContainer)
         self.extraRightBox = QtWidgets.QFrame(self.content)
@@ -1280,7 +1596,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.styleSheet)
 
         self.retranslateUi(MainWindow)
-        self.stackedWidget.setCurrentIndex(1)
+        self.stackedWidget.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -1290,21 +1606,22 @@ class Ui_MainWindow(object):
         self.minimizeAppBtn.setToolTip(_translate("MainWindow", "Minimize"))
         self.maximizeRestoreAppBtn.setToolTip(_translate("MainWindow", "Maximize"))
         self.closeAppBtn.setToolTip(_translate("MainWindow", "Close"))
-        self.label_2.setText(_translate("MainWindow", "Operator ID:"))
+        self.label_2.setText(_translate("MainWindow", "ID:"))
         self.txtID.setPlaceholderText(_translate("MainWindow", "Enter ID"))
-        self.label_3.setText(_translate("MainWindow", "WO:             "))
+        self.label_3.setText(_translate("MainWindow", "WO:"))
         self.txtWO.setPlaceholderText(_translate("MainWindow", "Enter Work Order"))
-        self.label_4.setText(_translate("MainWindow", "PT:               "))
+        self.label_4.setText(_translate("MainWindow", "PT:"))
         self.txtPT.setPlaceholderText(_translate("MainWindow", "Enter PT"))
-        self.label_5.setText(_translate("MainWindow", "Issue:           "))
+        self.label_5.setText(_translate("MainWindow", "Issue:"))
         self.txtIssue.setPlaceholderText(_translate("MainWindow", "Enter any Issue"))
         self.btnOther.setText(_translate("MainWindow", "OTHERS"))
+        self.btnPool.setText(_translate("MainWindow", "POOL"))
         self.btnStart.setText(_translate("MainWindow", "START"))
         self.btnPause.setText(_translate("MainWindow", "PAUSE"))
         self.btnFinish.setText(_translate("MainWindow", "FINISH"))
-        self.label_22.setText(_translate("MainWindow", "Operator ID:"))
+        self.label_22.setText(_translate("MainWindow", "ID:"))
         self.txtID_2.setPlaceholderText(_translate("MainWindow", "Enter ID"))
-        self.label_23.setText(_translate("MainWindow", "WO:             "))
+        self.label_23.setText(_translate("MainWindow", "WO:"))
         self.cmbxWO.setItemText(1, _translate("MainWindow", "REWORK"))
         self.cmbxWO.setItemText(2, _translate("MainWindow", "CLEAN"))
         self.cmbxWO.setItemText(3, _translate("MainWindow", "PAINT"))
@@ -1312,7 +1629,29 @@ class Ui_MainWindow(object):
         self.btnStart_2.setText(_translate("MainWindow", "START"))
         self.btnPause_2.setText(_translate("MainWindow", "PAUSE"))
         self.btnFinish_2.setText(_translate("MainWindow", "FINISH"))
+        self.label_18.setText(_translate("MainWindow", "ID"))
+        self.txtID3.setPlaceholderText(_translate("MainWindow", "Enter ID"))
+        self.label_19.setText(_translate("MainWindow", "WO:"))
+        self.txtWO3.setPlaceholderText(_translate("MainWindow", "Enter Work Order"))
+        self.label_20.setText(_translate("MainWindow", "PT:"))
+        self.txtPT3.setPlaceholderText(_translate("MainWindow", "Enter PT"))
+        self.label_21.setText(_translate("MainWindow", "Issue:"))
+        self.txtIssue3.setPlaceholderText(_translate("MainWindow", "Enter any Issue"))
+        self.btnStart3.setText(_translate("MainWindow", "START"))
+        self.btnPause3.setText(_translate("MainWindow", "PAUSE"))
+        self.btnFinish3.setText(_translate("MainWindow", "FINISH"))
+        self.btnBack2.setText(_translate("MainWindow", "BACK"))
         self.btn_message.setText(_translate("MainWindow", "Message"))
         self.btn_print.setText(_translate("MainWindow", "Print"))
         self.btn_logout.setText(_translate("MainWindow", "Logout"))
 import resorces_rc
+
+
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    MainWindow = QtWidgets.QMainWindow()
+    ui = Ui_MainWindow()
+    ui.setupUi(MainWindow)
+    MainWindow.show()
+    sys.exit(app.exec_())
