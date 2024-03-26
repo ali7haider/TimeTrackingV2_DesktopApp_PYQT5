@@ -6,6 +6,8 @@ from main_ui import Ui_MainWindow  # Import the generated class
 import pandas as pd
 import os
 from datetime import datetime
+import sqlite3
+import openpyxl
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
@@ -13,6 +15,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     
         # Set up the user interface from the generated class
         self.setupUi(self)
+        self.conn = sqlite3.connect("appData/data.db")
+        self.cursor = self.conn.cursor()
+        self.create_data_table()
+        self.create_pause_table()
     
         # Set flags to remove the default title bar
         self.setWindowFlags(Qt.FramelessWindowHint)
@@ -70,6 +76,44 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.txtID_2.textChanged.connect(self.check_existing_entry_2)
 
         # Load values from CSV to cmbxWO
+    def create_data_table(self):
+        # Drop the table if it exists and create a new Data table
+        self.cursor.execute('''CREATE TABLE IF NOT EXISTS Data (
+                                ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                                Operator_ID TEXT ,
+                                Date TEXT,
+                                Work_Order TEXT,
+                                Other TEXT,
+                                Project_Task TEXT,
+                                Qty TEXT,
+                                Issue TEXT,
+                                Start_Date_Time TEXT,
+                                Start_Time TEXT,
+                                End_Date_Time TEXT,
+                                End_Time TEXT,
+                                Total_Time_seconds TEXT,
+                                Total_Time_minutes TEXT
+                                
+                            )''')
+        self.conn.commit()  # Commit the transaction to save changes to the database
+    def create_pause_table(self):
+        # Drop the table if it exists and create a new Pause table
+        self.cursor.execute('''CREATE TABLE IF NOT EXISTS Pause (
+                                ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                                DataID INTEGER,
+                                DataIdx INTEGER,
+
+                                Pause_Start_Date_Time TEXT,
+                                Pause_End_Date_Time TEXT,
+                                Pause_Start_Time TEXT,
+                                Pause_End_Time TEXT,
+                                Pause_Duration_seconds TEXT,
+                                Pause_Duration_minutes TEXT,
+                                FOREIGN KEY(DataID) REFERENCES Data(ID)
+                                FOREIGN KEY(DataIdx) REFERENCES Data(ID)
+
+                            )''')
+        self.conn.commit()  # Commit the transaction to save changes to the database
     def load_values_to_cmbxWO(self):
         # Load data from CSV
         df = self.load_csv_cmbx()
@@ -91,21 +135,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Check if the provided ID exists in the CSV file and has no end time
         txtID = self.txtID_2.text()
         print("txtID",txtID)
-        if self.entry_exists(txtID):
+        if self.entry_exists_in_database(txtID):
+
             # Load corresponding information from the CSV file
-            loaded_info = self.load_info_from_csv(txtID)
-            if loaded_info:
-                for entry in loaded_info:
-                    end_time = entry.get('End Time')
-                    endMinute = entry.get('Total Time (minutes)')
-                    pause_start_time = entry.get('Pause Start Time')
-                    pause_end_time = entry.get('Pause End Time')
+            loaded_info = self.load_info_from_database(txtID)
+            if loaded_info is not None and not loaded_info.empty:
+                print(loaded_info)
+                for _, entry in loaded_info.iterrows():
+                    end_time = entry.get('End_Time')  # Adjust the column name
+                    end_minute = entry.get('Total_Time_minutes')  # Adjust the column name
+                    pause_start_time = entry.get('Pause_Start_Time')  # Adjust the column name
+                    pause_end_time = entry.get('Pause_End_Time')  # Adjust the column name
                     Other = entry.get('Other')
-                    if not (pd.isna(end_time) and pd.isna(endMinute)):
+                    Work_Order = entry.get('Work_Order')
+                    ID = entry.get('ID')  # Adjust the column name
+                    latest_pause_data = self.get_latest_pause_data(ID)
+                    if not latest_pause_data.empty:
+                        pause_start_time = latest_pause_data['Pause_Start_Time'].iloc[0]
+                        pause_end_time = latest_pause_data['Pause_End_Time'].iloc[0]
+                        print(pause_start_time,pause_end_time)
+                    if end_time!='':
                         continue
                     if Other == "Yes":
                         check = True
-                        if not pd.isna(pause_start_time) and pd.isna(pause_end_time):
+                        if pause_start_time!="" and pause_end_time is None:
                             self.flag = "Pause"
             
                             # Enable/disable buttons for paused state
@@ -122,9 +175,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                             self.btnPool.setStyleSheet(self.disabledButtonStyle_Sheet)
             
                             # Load information into line edits
-                            self.cmbxWO.setCurrentText(str(entry['Work Order']))
+                            self.cmbxWO.setCurrentText(str(Work_Order))
             
-                        elif pd.isna(end_time) and pd.isna(endMinute):
+                        elif end_time=="" and end_minute=="":
             
                             # Enable/disable buttons for non-paused state
                             self.flag = "Start"
@@ -141,10 +194,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                             self.btnFinish_2.setStyleSheet(self.enabledButtonStyle_Sheet)
             
                             # Load information into line edits
-                            self.cmbxWO.setCurrentText(str(entry['Work Order']))
+                            self.cmbxWO.setCurrentText(str(Work_Order))
     
         else:
             # Disable all buttons if the entry does not exist
+
             self.flag = "Start"
             self.btnStart_2.setEnabled(False)
             self.btnOther.setEnabled(True)
@@ -187,6 +241,28 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Reconnect textChanged signals
         self.txtID_2.textChanged.connect(self.check_enable_start_btn_2)
         self.cmbxWO.currentTextChanged.connect(self.check_enable_start_btn_2)
+    def get_latest_pause_data(self, idx):
+        try:
+            # Execute SQL query to fetch the latest pause data for the specified operator_id
+            self.cursor.execute("SELECT * FROM Pause WHERE DataIdx = ? ORDER BY ID DESC LIMIT 1", (idx,))
+            
+            # Fetch the result of the query
+            latest_pause_data = self.cursor.fetchone()
+            
+            # Check if data was fetched
+            if latest_pause_data:
+                # Convert the fetched data into a DataFrame
+                columns = [column[0] for column in self.cursor.description] 
+            # Get column names
+                latest_pause_df = pd.DataFrame([latest_pause_data], columns=columns)  # Create DataFrame
+                return latest_pause_df
+            else:
+                return pd.DataFrame()  # Return an empty DataFrame if no data is fetched
+        except Exception as e:
+            # Handle any exceptions
+            QMessageBox.warning(self, "Error", f"An error occurred while retrieving latest pause data: {str(e)}")
+            return pd.DataFrame()  # Return an empty DataFrame in case of error
+
 
     def check_existing_entry(self):
         self.flag = "Start"
@@ -201,22 +277,32 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     
         # Check if the provided ID exists in the CSV file and has no end time
         txtID = self.txtID.text()
-        if self.entry_exists(txtID):
+      
+        if self.entry_exists_in_database(txtID):
             # Load corresponding information from the CSV file
-            loaded_info = self.load_info_from_csv(txtID)
-    
-            if loaded_info:
-                for entry in loaded_info:
-                    end_time = entry.get('End Time')
-                    endMinute = entry.get('Total Time (minutes)')
-                    pause_start_time = entry.get('Pause Start Time')
-                    pause_end_time = entry.get('Pause End Time')
-                    if not (pd.isna(end_time) and pd.isna(endMinute)):
-                        continue
+            # Load corresponding information from the CSV file
+            loaded_info = self.load_info_from_database(txtID)
+            if loaded_info is not None and not loaded_info.empty:
+                for _, entry in loaded_info.iterrows():
+                    ID = entry.get('ID')  # Adjust the column name
+                    latest_pause_data = self.get_latest_pause_data(ID)
+                    end_time = entry.get('End_Time')  # Adjust the column name
+                    end_minute = entry.get('Total_Time_minutes')  # Adjust the column name
+                    pause_start_time = ""  # Adjust the column name
+                    pause_end_time = "" # Adjust the column name
                     Other = entry.get('Other')
-                    if Other=="No":
+                    Work_Order = entry.get('Work_Order')
+                    Project_Task = entry.get('Project_Task')
+                    Issue = entry.get('Issue')
+                    if not latest_pause_data.empty:
+                        pause_start_time = latest_pause_data['Pause_Start_Time'].iloc[0]
+                        pause_end_time = latest_pause_data['Pause_End_Time'].iloc[0]
+                        
+                    if end_time!='':
+                        continue
+                    if Other == "No":
                         check=True
-                        if not pd.isna(pause_start_time) and pd.isna(pause_end_time):
+                        if pause_start_time!="" and pause_end_time is None:
                             self.flag = "Pause"
             
                             # Enable/disable buttons for paused state
@@ -233,12 +319,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                             self.btnFinish.setStyleSheet(self.enabledButtonStyle_Sheet)
             
                             # Load information into line edits
-                            self.txtWO.setText(str(entry['Work Order']))
-                            self.txtPT.setText(str(entry['Project Task']))
-                            self.txtIssue.setText(str(entry['Issue']))
+                            self.txtWO.setText(str(Work_Order))
+                            self.txtPT.setText(str(Project_Task))
+                            self.txtIssue.setText(str(Issue))
             
-                        elif pd.isna(end_time) and pd.isna(endMinute):
-            
+                        elif end_time=="" and end_minute=="":
                             # Enable/disable buttons for non-paused state
                             self.flag = "Start"
                             self.btnStart.setEnabled(False)
@@ -254,12 +339,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                             self.btnFinish.setStyleSheet(self.enabledButtonStyle_Sheet)
             
                             # Load information into line edits
-                            self.txtWO.setText(str(entry['Work Order']))
-                            self.txtPT.setText(str(entry['Project Task']))
-                            self.txtIssue.setText(str(entry['Issue']))
+                            self.txtWO.setText(str(Work_Order))
+                            self.txtPT.setText(str(Project_Task))
+                            self.txtIssue.setText(str(Issue))
+            
     
         else:
             # Disable all buttons if the entry does not exist
+
             self.flag = "Start"
             self.btnStart.setEnabled(False)
             self.btnOther.setEnabled(True)
@@ -400,14 +487,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 QMessageBox.warning(self, "Warning", "Please fill all required inputs.")
             else:
                 # Save the record to Excel and CSV files
-                self.save_to_files(txtID, txtWO, txtPT, txtIssue)
+                self.save_to_database(txtID, txtWO, txtPT, txtIssue)
                 # Show successful message box
                 QMessageBox.information(self, "Success", "Your time has started.")
                 # Clear input fields
                 self.clear_input_fields()
         elif (self.flag=="Pause"):
             txtID = self.txtID.text()
-            self.save_pause_end_time(txtID)
+            txtWO = self.txtWO.text()
+            txtPT = self.txtPT.text()
+            txtIssue = self.txtIssue.text()
+            self.save_pause_end_time(txtID,txtWO,txtPT,txtIssue)
     def save_record_2(self):
         # Get inputs from line edits
         if (self.flag=="Start"):
@@ -420,90 +510,182 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 QMessageBox.warning(self, "Warning", "Please fill all required inputs.")
             else:
                 # Save the record to Excel and CSV files
-                self.save_to_files_2(txtID, txtWO)
+                self.save_to_database_2(txtID, txtWO)
                 # Show successful message box
                 QMessageBox.information(self, "Success", "Your time has started.")
                 # Clear input fields
                 self.clear_input_fields_2()
         elif (self.flag=="Pause"):
             txtID = self.txtID_2.text()
-            self.save_pause_end_time(txtID)
-    def save_pause_end_time(self, txtID):
+            cmbxWO = self.cmbxWO.currentText()
+            self.save_pause_end_time_2(txtID,cmbxWO)
+    def save_pause_end_time(self, txtID,txtWO,txtPT,txtIssue):
         try:
-            # Load CSV data
-            df = self.load_csv_data()
+            df=self.load_matching_entries_from_db(txtID,txtIssue,txtWO,txtPT,self.cursor)
+            if df is not None and not df.empty:
+                # Get the last index of the DataFrame
+                last_index = df.index[-1]
+                
+                # Extract the ID from the DataFrame
+                entry_id = df.loc[last_index, 'ID']
+                # Get current date and time
+                current_date = QDate.currentDate().toString("yyyy-MM-dd")
+                current_time = QTime.currentTime().toString("hh:mm:ss")
+                current_datetime = current_date + " " + current_time
+        
+                self.cursor.execute("UPDATE Pause SET Pause_End_Time = ?, Pause_End_Date_Time = ? WHERE DataIdx = ? AND Pause_End_Date_Time IS NULL",
+                    (current_time, current_datetime, int(entry_id)))
+
+                self.cursor.execute("""
+                UPDATE Pause 
+                SET 
+                    Pause_Duration_seconds = (strftime('%s', Pause_End_Date_Time) - strftime('%s', Pause_Start_Date_Time)),
+                    Pause_Duration_minutes = (CAST((strftime('%s', Pause_End_Date_Time) - strftime('%s', Pause_Start_Date_Time)) AS REAL) / 60)
+                WHERE 
+                    DataIdx = ? AND
+                    Pause_End_Date_Time IS NOT NULL AND Pause_Start_Date_Time IS NOT NULL
+            """, (int(entry_id),))
     
-            # Check if CSV data is loaded
-            if df is not None:
-                # Get the index of the last row in the DataFrame
-                index = df[df['ID'] == int(txtID)].index
-                # Update pause start time with the last row
-                last_index = index[-1] if len(index) > 0 else None
-                if last_index is not None:
-    
-                    # Get current date and time
-                    current_date = QDate.currentDate().toString("yyyy-MM-dd")
-                    current_time = QTime.currentTime().toString("hh:mm:ss")
-    
-                    # Combine date and time into the desired format
-                    current_datetime = current_date + " " + current_time
-    
-                    # Update the pause end time in the CSV data for the latest ID
-                    df.loc[last_index, 'Pause End Time'] = current_time
-                    df.loc[last_index, 'Pause End Date Time'] = current_datetime
-    
-                    # Calculate total pause minutes
-                    start_time_str = df.loc[last_index, 'Pause Start Date Time']
-                    end_time_str = df.loc[last_index, 'Pause End Date Time']
-    
-                    start_time = datetime.strptime(start_time_str, "%Y-%m-%d %H:%M:%S")
-                    end_time = datetime.strptime(end_time_str, "%Y-%m-%d %H:%M:%S")
-                    pause_duration = (end_time - start_time).total_seconds() / 60
-    
-                    # Update the total pause minutes in the CSV data
-                    df.loc[last_index, 'Pause Duration (seconds)'] = pause_duration * 60
-                    df.loc[last_index, 'Pause Duration (minutes)'] = pause_duration
-    
-                    # Save the updated CSV data to the file
-                    self.save_to_csv(df)
-    
-                    # Show successful message box
-                    QMessageBox.information(self, "Success", "Your time has restarted.")
-                    self.clear_input_fields()
+            # Commit the transaction to save changes to the database
+                self.conn.commit()
+
+                # Commit the changes to the database
+        
+                # Show successful message box
+                QMessageBox.information(self, "Success", "Your pause end time has been updated.")
+                self.clear_input_fields()
     
         except Exception as e:
             # Show error message box
-            QMessageBox.warning(self, "Error", f"An error occurred in update end pause time: {str(e)}")
+            QMessageBox.warning(self, "Error", f"An error occurred in updating end pause time: {str(e)}")
+    def save_pause_end_time_2(self, txtID,cmbxWO):
+        try:
+            df=self.load_matching_entries_from_db_2(txtID,cmbxWO,self.cursor)
+            if df is not None and not df.empty:
+                # Get the last index of the DataFrame
+                last_index = df.index[-1]
+                
+                # Extract the ID from the DataFrame
+                entry_id = df.loc[last_index, 'ID']
+                # Get current date and time
+                current_date = QDate.currentDate().toString("yyyy-MM-dd")
+                current_time = QTime.currentTime().toString("hh:mm:ss")
+                current_datetime = current_date + " " + current_time
+        
+                self.cursor.execute("UPDATE Pause SET Pause_End_Time = ?, Pause_End_Date_Time = ? WHERE DataIdx = ? AND Pause_End_Date_Time IS NULL",
+                    (current_time, current_datetime, ))
+
+                self.cursor.execute("""
+                UPDATE Pause 
+                SET 
+                    Pause_Duration_seconds = (strftime('%s', Pause_End_Date_Time) - strftime('%s', Pause_Start_Date_Time)),
+                    Pause_Duration_minutes = (CAST((strftime('%s', Pause_End_Date_Time) - strftime('%s', Pause_Start_Date_Time)) AS REAL) / 60)
+                WHERE 
+                    DataIdx = ? AND
+                    Pause_End_Date_Time IS NOT NULL AND Pause_Start_Date_Time IS NOT NULL
+            """, (int(entry_id),))
+    
+            # Commit the transaction to save changes to the database
+                self.conn.commit()
+
+                # Commit the changes to the database
+        
+                # Show successful message box
+                QMessageBox.information(self, "Success", "Your pause end time has been updated.")
+                self.clear_input_fields()
+    
+        except Exception as e:
+            # Show error message box
+            QMessageBox.warning(self, "Error", f"An error occurred in updating end pause time: {str(e)}")
+    
+    def load_matching_entries_from_db(self,txtID, txtIssue, txtWO, txtPT, cursor):
+        try:
+            # Query the database to fetch matching entries
+            print()
+            cursor.execute("""
+                SELECT * FROM Data
+                WHERE Operator_ID = ? AND Issue = ? AND Work_Order = ? AND Project_Task = ?
+            """, (txtID, txtIssue, txtWO, txtPT))
+            
+            # Fetch all matching entries
+            matching_entries = cursor.fetchall()
+            
+            # Convert the fetched data into a DataFrame
+            df = pd.DataFrame(matching_entries, columns=['ID', 'Date', 'Operaror_ID','Work_Order', 'Other', 
+                                                          'Project_Task','Qty', 'Issue', 'Start_Date_Time',
+                                                          'Start_Time', 'End_Date_Time', 'End_Time',
+                                                          'Total_Time_seconds', 'Total_Time_minutes'])
+            
+            return df
+        except Exception as e:
+            print(f"Error loading matching entries from database: {e}")
+            return pd.DataFrame()  # Return an empty DataFrame if an error occurs
+    def load_matching_entries_from_db_2(self,txtID, txtWO,cursor):
+        try:
+            # Query the database to fetch matching entries
+            cursor.execute("""
+                SELECT * FROM Data
+                WHERE Operator_ID = ? AND Work_Order = ?
+            """, (txtID,txtWO))
+            
+            # Fetch all matching entries
+            matching_entries = cursor.fetchall()
+            
+            # Convert the fetched data into a DataFrame
+            df = pd.DataFrame(matching_entries, columns=['ID', 'Date', 'Operator_ID','Work_Order', 'Other', 
+                                                          'Project_Task','Qty', 'Issue', 'Start_Date_Time',
+                                                          'Start_Time', 'End_Date_Time', 'End_Time',
+                                                          'Total_Time_seconds', 'Total_Time_minutes'])
+            
+            return df
+        except Exception as e:
+            print(f"Error loading matching entries from database: {e}")
+            return pd.DataFrame()  # Return an empty DataFrame if an error occurs
 
     def update_pause_start_time(self):
-         try:
-             txtID = self.txtID.text()
-             df = self.load_csv_data()
-             if df is not None:
-                 current_date = QDate.currentDate().toString("yyyy-MM-dd")
-                 current_time = QTime.currentTime().toString("hh:mm:ss")
-                 current_datetime = current_date + " " + current_time
-                 index = df[df['ID'] == int(txtID)].index
-                 # Update pause start time with the last row
-                 last_index = index[-1] if len(index) > 0 else None
-                 if last_index is not None:
-                     df.loc[last_index, 'Pause Start Time'] = current_time
-                     df.loc[last_index, 'Pause Start Date Time'] = current_datetime
-                     self.save_to_csv(df)
-                     QMessageBox.information(self, "Success", "Your time has paused.")
-                 else:
-                     QMessageBox.warning(self, "Warning", "No matching ID found.")
-             self.clear_input_fields()
-             self.clear_input_fields_2()
-         except Exception as e:
-             QMessageBox.warning(self, "Error", f"An error occurred while updating pause start time: {str(e)}")
-   
+        try:
+            # Get current date and time
+            current_date = QDate.currentDate().toString("yyyy-MM-dd")
+            current_time = QTime.currentTime().toString("hh:mm:ss")
+            current_datetime = current_date + " " + current_time
+            
+            # Match current user data to find all entries with the same data
+            txtID = self.txtID.text()
+            txtIssue = self.txtIssue.text()
+            txtWO = self.txtWO.text()
+            txtPT = self.txtPT.text()
+            df = self.load_matching_entries_from_db(txtID, txtIssue, txtWO, txtPT, self.cursor)
+            
+            if df is not None and not df.empty:
+                # Get the last index of the DataFrame
+                last_index = df.index[-1]
+                print("Last index:", last_index)
+                
+                # Extract the ID from the DataFrame
+                entry_id = df.loc[last_index, 'ID']  # Assuming 'ID' is the column name for the primary key
+                
+                # Save pause data to the pause table
+                self.save_pause_data_to_db(entry_id, current_time, current_datetime)
+            self.clear_input_fields()
+            self.clear_input_fields_2()
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"An error occurred while updating pause start time: {str(e)}")
 
-
-
-
-
-
+    def save_pause_data_to_db(self, entry_id, current_time, current_datetime):
+        try:
+            print("Entry",entry_id)
+            # Insert pause data into the pause table
+            self.cursor.execute('''INSERT INTO Pause (DataID, DataIdx,Pause_Start_Time, Pause_Start_Date_Time) 
+                                   VALUES (?, ?, ?,?)''', (entry_id,int(entry_id), current_time, current_datetime))
+            self.conn.commit()
+            QMessageBox.information(self, "Success", "Pause data saved successfully.")
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"An error occurred while saving pause data: {str(e)}")
+    
+    
+    
+    
+    
 
     def entry_exists(self, txtID):
         # Check if txtID is empty
@@ -522,7 +704,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if df is not None:
             return (df['ID'] == txtID).any()
         return False
+    def entry_exists_in_database(self, txtID):
+        try:
+            # Execute SQL query to count entries with matching txtID in Data table
+            self.cursor.execute("SELECT COUNT(*) FROM Data WHERE Operator_ID = ?", (txtID,))
 
+            
+            # Fetch the result of the query
+            count = self.cursor.fetchone()[0]
+            
+            # Return True if count is greater than 0, indicating that entries exist
+            return count > 0
+        except Exception as e:
+            # Handle any exceptions
+            QMessageBox.warning(self, "Error", f"An error occurred while checking entry in database: {str(e)}")
+            return False
+
+
+    def load_data_from_database(self):
+        # Query the database to load data
+        self.cursor.execute("SELECT * FROM Data")
+        rows = self.cursor.fetchall()
+        columns = [column[0] for column in self.cursor.description]
+        df = pd.DataFrame(rows, columns=columns)
+        return df
     def entry_has_end_time(self, txtID):
         # Check if the provided ID has an end time in the CSV file
         df = self.load_csv_data()
@@ -638,151 +843,332 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     
         # Save the updated DataFrame to CSV
         df.to_csv(csv_file_path, index=False)
+    def save_to_database(self, txtID, txtWO, txtPT, txtIssue):
+        try:
+            # Get current date and time
+            current_date = QDate.currentDate().toString("yyyy-MM-dd")
+            current_time = QTime.currentTime().toString("hh:mm:ss")
+            current_datetime = current_date + " " + current_time
+            
+            # Insert new data into the Data table
+            self.cursor.execute('''INSERT INTO Data (Date, Operator_ID, Work_Order, Other, Project_Task, Issue, 
+                                Start_Date_Time, Start_Time, End_Date_Time, End_Time, Total_Time_seconds, 
+                                Total_Time_minutes) 
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+                                (current_date, txtID, txtWO, 'No', txtPT, txtIssue, current_datetime, 
+                                current_time, '', '', '', ''))
+            self.conn.commit()  # Commit the transaction to save changes to the database
+            
+            print("Data saved to database successfully.")
+        except Exception as e:
+            print(f"An error occurred while saving data to the database: {str(e)}")
+    def save_to_database_2(self, txtID, txtWO):
+        try:
+            # Get current date and time
+            current_date = QDate.currentDate().toString("yyyy-MM-dd")
+            current_time = QTime.currentTime().toString("hh:mm:ss")
+            current_datetime = current_date + " " + current_time
+            
+            # Insert new data into the Data table
+            self.cursor.execute('''INSERT INTO Data (Date, Operator_ID, Work_Order, Other, Project_Task, Issue, 
+                                Start_Date_Time, Start_Time, End_Date_Time, End_Time, Total_Time_seconds, 
+                                Total_Time_minutes) 
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+                                (current_date, txtID, txtWO, 'Yes', '', '', current_datetime, 
+                                current_time, '', '', '', ''))
+            self.conn.commit()  # Commit the transaction to save changes to the database
+            
+            print("Data saved to database successfully.")
+        except Exception as e:
+            print(f"An error occurred while saving data to the database: {str(e)}")
+
 
     def finish_record(self):
         txtID = self.txtID.text()
+        txtIssue = self.txtIssue.text()
+        txtWO = self.txtWO.text()
+        txtPT = self.txtPT.text()
         if txtID:
             # Update the end time and end date time
-            self.update_end_time(txtID)
+            self.update_end_time(txtID,txtIssue,txtWO,txtPT)
             
             # Calculate total time spent
-            total_time_minutes = self.calculate_total_time(txtID)
-            
-            if total_time_minutes is not None:
-                # Update the total time in the CSV file
-                self.update_total_time(txtID, total_time_minutes)
+            df=self.load_matching_entries_from_db(txtID,txtIssue,txtWO,txtPT,self.cursor)
+            if df is not None and not df.empty:
+                # Get the last index of the DataFrame
+                last_index = df.index[-1]
                 
-                # Disable the finish button after finishing the record
+                # Extract the ID from the DataFrame
+                entry_id = df.loc[last_index, 'ID']
+                self.calculate_total_time(entry_id)
                 self.btnFinish.setEnabled(False)
-                QMessageBox.information(self, "Success", f"Record Saved. Total time: {total_time_minutes} minutes.")
+                QMessageBox.information(self, "Success", f"Record Saved. Total time: minutes.")
                 self.clear_input_fields()
                 self.clear_input_fields_2()
-                self.save_to_excel(txtID)
+                self.save_to_excel(txtID,txtIssue,txtWO,txtPT)
 
-            else:
-                QMessageBox.warning(self, "Warning", "Cannot calculate total time.")
         else:
             QMessageBox.warning(self, "Warning", "ID field is empty.")
     def finish_record_2(self):
         txtID = self.txtID_2.text()
+        cmbxWO = self.cmbxWO.currentText()
         if txtID:
             # Update the end time and end date time
-            self.update_end_time(txtID)
-            
+            self.update_end_time_2(txtID,cmbxWO)
             # Calculate total time spent
-            total_time_minutes = self.calculate_total_time(txtID)
-            
-            if total_time_minutes is not None:
-                # Update the total time in the CSV file
-                self.update_total_time(txtID, total_time_minutes)
+            df=self.load_matching_entries_from_db_2(txtID,cmbxWO,self.cursor)
+            if df is not None and not df.empty:
+                # Get the last index of the DataFrame
+                last_index = df.index[-1]
                 
-                # Disable the finish button after finishing the record
+                # Extract the ID from the DataFrame
+                entry_id = df.loc[last_index, 'ID']
+                # Calculate total time spent
+                self.calculate_total_time(entry_id)
                 self.btnFinish.setEnabled(False)
-                QMessageBox.information(self, "Success", f"Record Saved. Total time: {total_time_minutes} minutes.")
+                QMessageBox.information(self, "Success", f"Record Saved. Total time: minutes.")
                 self.clear_input_fields()
                 self.clear_input_fields_2()
-                self.save_to_excel(txtID)
-
-            else:
-                QMessageBox.warning(self, "Warning", "Cannot calculate total time.")
+                self.save_to_excel_2(txtID,cmbxWO)
         else:
             QMessageBox.warning(self, "Warning", "ID field is empty.")
-    def update_end_time(self, txtID):
+    def update_end_time(self, txtID,txtIssue,txtWO,txtPT):
         try:
-            df = self.load_csv_data()
-            if df is not None:
+            df=self.load_matching_entries_from_db(txtID,txtIssue,txtWO,txtPT,self.cursor)
+            if df is not None and not df.empty:
+                # Get the last index of the DataFrame
+                last_index = df.index[-1]
+                
+                # Extract the ID from the DataFrame
+                entry_id = df.loc[last_index, 'ID']
+                # Get current date and time
                 current_date = QDate.currentDate().toString("yyyy-MM-dd")
                 current_time = QTime.currentTime().toString("hh:mm:ss")
                 current_datetime = current_date + " " + current_time
-                index = df[df['ID'] == int(txtID)].index
-                if not index.empty:
-                    # Get the last index if multiple rows exist for the same ID
-                    last_index = index[-1]
-                    
-                    if 'Pause End Date Time' in df.columns and pd.isnull(df.loc[last_index, 'Pause End Date Time']) and not pd.isnull(df.loc[last_index, 'Pause Start Date Time']):
-                        # If Pause End Date Time exists, update Pause End Time and Pause End Date Time
-                        df.loc[last_index, 'Pause End Time'] = current_time
-                        df.loc[last_index, 'Pause End Date Time'] = current_datetime
-    
-                        # Calculate pause duration
-                        pause_start_time = df.loc[last_index, 'Pause Start Time']
-                        pause_start_datetime = df.loc[last_index, 'Pause Start Date Time']
-                        pause_start_datetime_obj = QDateTime.fromString(pause_start_datetime, "yyyy-MM-dd hh:mm:ss")
-                        current_datetime_obj = QDateTime.fromString(current_datetime, "yyyy-MM-dd hh:mm:ss")
-                        pause_duration_seconds = pause_start_datetime_obj.secsTo(current_datetime_obj)
-                        pause_duration_minutes = pause_duration_seconds / 60
-    
-                        df.loc[last_index, 'Pause Duration (seconds)'] = pause_duration_seconds
-                        df.loc[last_index, 'Pause Duration (minutes)'] = pause_duration_minutes
-    
-                    df.loc[last_index, 'End Time'] = current_time
-                    df.loc[last_index, 'End Date Time'] = current_datetime
-                    self.save_to_csv(df)
-        except Exception as e:
-            QMessageBox.warning(self, "Error", f"An error occurred: {str(e)}")
-
-    def save_to_excel(self, txtID):
-        try:
-            # Load record.csv
-            df_record = self.load_info_from_csv(txtID)
-            
-            # Check if the DataFrame is not empty
-            if df_record is not None:
-                if len(df_record) > 1:
-                    latest_record = df_record[-1]
-                else:  # If there is only one row, get that row
-                    latest_record = df_record[0]               # Get the last row (latest record)
-                Date = latest_record.get('Date')
-                ID = latest_record.get('ID')
-                WO = latest_record.get('Work Order')
-                ProjectTask = latest_record.get('Project Task')
-                Issue = latest_record.get('Issue')
-                total = latest_record.get('Total Time (minutes)')
-                print(total)
-                # Define the Excel file path
-                self.save_to_excelNow(Date, ID,WO,ProjectTask,Issue,total)
+                self.cursor.execute("UPDATE Pause SET Pause_End_Time = ?, Pause_End_Date_Time = ? WHERE DataIdx = ? AND Pause_End_Date_Time IS NULL",
+                    (current_time, current_datetime, int(entry_id)))
                 
-        
-        except Exception as e:
-            QMessageBox.critical(self, "Error", f"An error occurred while saving to Excel: {str(e)}")
-    def save_to_excelNow(self, Date, ID, WO, PT, Issue, total):
-        try:
-            # Load existing data from Excel if it exists
-            excel_file_path = os.path.join("data", "records.xlsx")
-            if os.path.exists(excel_file_path):
-                df = pd.read_excel(excel_file_path)
-            else:
-                df = pd.DataFrame()
-    
-            # Get current date
-            current_date = QDate.currentDate().toString("yyyy-MM-dd")
-    
-            # Create a new row as a dictionary
-            new_row = {
-                'Date Started': current_date,
-                'Date Finished': Date,
-                'ID': ID,
-                'Work Order': WO,
-                'Project Task': PT,
-                'Issue': Issue,
-                'Total Time (minutes)': total
-            }
-            print(new_row)
-            # Append the new row to the list of rows
-            rows_to_append = [new_row]
-    
-            # Convert the list of rows into a DataFrame
-            df_to_append = pd.DataFrame(rows_to_append)
-    
-            # Append the new DataFrame to the existing DataFrame
-            df = pd.concat([df, df_to_append], ignore_index=True)
-    
-            # Save the updated DataFrame to Excel
-            df.to_excel(excel_file_path, index=False)
-    
-        except Exception as e:
-            QMessageBox.critical(self, "Error", f"An error occurred while saving to Excel: {str(e)}")
 
+                self.cursor.execute("""
+                UPDATE Pause 
+                SET 
+                    Pause_Duration_seconds = (strftime('%s', Pause_End_Date_Time) - strftime('%s', Pause_Start_Date_Time)),
+                    Pause_Duration_minutes = (CAST((strftime('%s', Pause_End_Date_Time) - strftime('%s', Pause_Start_Date_Time)) AS REAL) / 60)
+                WHERE 
+                    DataIdx = ? AND
+                    Pause_End_Date_Time IS NOT NULL AND Pause_Start_Date_Time IS NOT NULL
+            """, (int(entry_id),))
+              
+                self.cursor.execute("UPDATE Data SET End_Time = ?, End_Date_Time = ? WHERE ID = ?",
+                            (current_time, current_datetime, int(entry_id)))
+
+            # Commit the transaction to save changes to the database
+                self.conn.commit()
+
+                # Commit the changes to the database
+        
+                # Show successful message box
+                QMessageBox.information(self, "Success", "Your pause end time has been updated.")
+                self.clear_input_fields()
+    
+        except Exception as e:
+            # Show error message box
+            QMessageBox.warning(self, "Error", f"An error occurred in updating end pause time: {str(e)}")
+    def update_end_time_2(self, txtID,txtIssue,txtWO,txtPT):
+        try:
+            df=self.load_matching_entries_from_db(txtID,txtIssue,txtWO,txtPT,self.cursor)
+            if df is not None and not df.empty:
+                # Get the last index of the DataFrame
+                last_index = df.index[-1]
+                
+                # Extract the ID from the DataFrame
+                entry_id = df.loc[last_index, 'ID']
+                # Get current date and time
+                current_date = QDate.currentDate().toString("yyyy-MM-dd")
+                current_time = QTime.currentTime().toString("hh:mm:ss")
+                current_datetime = current_date + " " + current_time
+        
+                self.cursor.execute("UPDATE Pause SET Pause_End_Time = ?, Pause_End_Date_Time = ? WHERE DataIdx = ? AND Pause_End_Date_Time IS NULL",
+                    (current_time, current_datetime, int(entry_id)))
+
+                self.cursor.execute("""
+                UPDATE Pause 
+                SET 
+                    Pause_Duration_seconds = (strftime('%s', Pause_End_Date_Time) - strftime('%s', Pause_Start_Date_Time)),
+                    Pause_Duration_minutes = (CAST((strftime('%s', Pause_End_Date_Time) - strftime('%s', Pause_Start_Date_Time)) AS REAL) / 60)
+                WHERE 
+                    DataIdx = ? AND
+                    Pause_End_Date_Time IS NOT NULL AND Pause_Start_Date_Time IS NOT NULL
+            """, (int(entry_id),))
+                self.cursor.execute("UPDATE Data SET End_Time = ?, End_Date_Time = ? WHERE ID = ?",
+                            (current_time, current_datetime, int(entry_id)))
+    
+            # Commit the transaction to save changes to the database
+                self.conn.commit()
+
+                # Commit the changes to the database
+        
+                # Show successful message box
+                QMessageBox.information(self, "Success", "Your pause end time has been updated.")
+                self.clear_input_fields()
+    
+        except Exception as e:
+            # Show error message box
+            QMessageBox.warning(self, "Error", f"An error occurred in updating end pause time: {str(e)}")
+
+
+    
+    def save_to_excel(self, txtID, txtIssue, txtWO, txtPT):
+        try:
+            df = self.load_matching_entries_from_db(txtID, txtIssue, txtWO, txtPT, self.cursor)
+            if df is not None and not df.empty:
+                # Extract the last entry's ID
+                last_entry_id = df['ID'].iloc[-1]
+                
+                # Get the specific column data for the last entry
+                specific_column_data = self.get_specific_column(last_entry_id)
+                print("specific", specific_column_data)
+                
+                # Define column name mappings
+                column_name_mapping = {
+                    'Date': 'Date',
+                    'Operaror_ID': 'Operator ID',
+                    'Work_Order': 'Work Order',
+                    'Project_Task': 'Project Task',
+                    'Issue': 'Issue',
+                    'Total_Time_seconds': 'Total Time (seconds)',
+                    'Total_Time_minutes': 'Total Time (minutes)',
+                }
+                
+                # Rename columns according to the mapping
+                specific_column_data.rename(columns=column_name_mapping, inplace=True)
+                
+                # Add a new column "Date Ended" with today's date
+                # specific_column_data['Date Ended'] = datetime.now().strftime('%Y-%m-%d')
+                
+                # Check if the Excel file exists
+                file_path = "data/records.xlsx"
+                if not os.path.exists(file_path):
+                    # Create a new Excel file with custom column names
+                    specific_column_data.to_excel(file_path, index=False)
+                    print(f"New Excel file created at {file_path}")
+                else:
+                    # Load existing data from Excel file
+                    existing_df = pd.read_excel(file_path)
+                    
+                    # Append only the new data row to the existing DataFrame
+                    existing_df = existing_df.append(specific_column_data, ignore_index=True)
+                    
+                    # Save the updated DataFrame back to the Excel file
+                    existing_df.to_excel(file_path, index=False)
+                    print(f"Data appended to {file_path} successfully.")
+
+        except Exception as e:
+            print(f"An error occurred while saving data to Excel: {e}")
+
+
+
+
+
+
+    def get_specific_column(self, entry_id):
+        try:
+            id=int(entry_id)
+            # Execute SQL query to fetch the specific column for the given entry_id
+            self.cursor.execute(f"""
+                                SELECT Date, Operator_ID, Work_Order, Project_Task, Qty,Issue, Total_Time_seconds, Total_Time_minutes
+                                FROM Data 
+                                WHERE ID = ?
+                                """,
+                                (int(id),))
+            
+            # Fetch the result of the query
+            result = self.cursor.fetchone()
+            print("Result", result)
+            
+            # Convert the fetched result into a DataFrame
+            column_names = ['Date', 'Operator_ID', 'Work_Order', 'Project_Task','Qty', 'Issue', 'Total_Time_seconds', 'Total_Time_minutes']
+            specific_column_df = pd.DataFrame([result], columns=column_names)
+            
+            return specific_column_df
+        except Exception as e:
+            print(f"An error occurred while retrieving specific column: {e}")
+            return None
+
+
+    def save_to_excel_2(self, txtID, cmbxWO):
+        try:
+            df = self.load_matching_entries_from_db_2(txtID, cmbxWO, self.cursor)
+            if df is not None and not df.empty:
+                # Extract the last entry's ID
+                last_entry_id = df['ID'].iloc[-1]
+                
+                # Get the specific column data for the last entry
+                specific_column_data = self.get_specific_column(last_entry_id)
+                
+                # Define column name mappings
+                column_name_mapping = {
+                    'Date': 'Date',
+                    'Operaror_ID': 'Operator ID',
+                    'Work_Order': 'Work Order',
+                    'Project_Task': 'Project Task',
+                    'Issue': 'Issue',
+                    'Total_Time_seconds': 'Total Time (seconds)',
+                    'Total_Time_minutes': 'Total Time (minutes)',
+                }
+                
+                # Rename columns according to the mapping
+                specific_column_data.rename(columns=column_name_mapping, inplace=True)
+                
+                # Add a new column "Date Ended" with today's date
+                # specific_column_data['Date Ended'] = datetime.now().strftime('%Y-%m-%d')
+                
+                # Check if the Excel file exists
+                file_path = "data/records.xlsx"
+                if not os.path.exists(file_path):
+                    # Create a new Excel file with custom column names
+                    specific_column_data.to_excel(file_path, index=False)
+                    print(f"New Excel file created at {file_path}")
+                else:
+                    # Load existing data from Excel file
+                    existing_df = pd.read_excel(file_path)
+                    
+                    # Append only the new data row to the existing DataFrame
+                    existing_df = existing_df.append(specific_column_data, ignore_index=True)
+                    
+                    # Save the updated DataFrame back to the Excel file
+                    existing_df.to_excel(file_path, index=False)
+                    print(f"Data appended to {file_path} successfully.")
+
+        except Exception as e:
+            print(f"An error occurred while saving data to Excel: {e}")
+
+    def load_info_from_database(self, txtID):
+        try:
+            # Check if txtID is empty or not an integer
+            if not txtID:
+                print("Error: ID is empty.")
+                return None
+            
+            
+            # Query the database to fetch all rows with the specified ID
+            self.cursor.execute('''SELECT * FROM Data WHERE Operator_ID = ?''', (txtID,))
+            rows = self.cursor.fetchall()
+            
+            # Check if any rows were found
+            if not rows:
+                print("No data found for the specified ID.")
+                return None
+            
+            # Convert the fetched rows into a DataFrame
+            columns = [desc[0] for desc in self.cursor.description]
+            df = pd.DataFrame(rows, columns=columns)
+            
+            print("Data loaded from database successfully.")
+            return df
+        except Exception as e:
+            print(f"An error occurred while loading data from the database: {str(e)}")
+            return None
 
     def save_to_csv(self, df):
         folder_path = "appData"
@@ -792,75 +1178,101 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         csv_file_path = os.path.join(folder_path, "recordCSV.csv")
         df.to_csv(csv_file_path, index=False)
 
+    
     def update_pause_start_time_2(self):
         try:
-            txtID = self.txtID_2.text()
-            df = self.load_csv_data()
-            if df is not None:
-                current_date = QDate.currentDate().toString("yyyy-MM-dd")
-                current_time = QTime.currentTime().toString("hh:mm:ss")
-                current_datetime = current_date + " " + current_time
-                index = df[df['ID'] == int(txtID)].index
-                # Update pause start time with the last row
-                last_index = index[-1] 
-                if last_index is not None:
-                    df.loc[last_index, 'Pause Start Time'] = current_time
-                    df.loc[last_index, 'Pause Start Date Time'] = current_datetime
-                    self.save_to_csv(df)
-                    QMessageBox.information(self, "Success", "Your time has paused.")
-                else:
-                    QMessageBox.warning(self, "Warning", "No matching ID found.")
+            # Get current date and time
+            current_date = QDate.currentDate().toString("yyyy-MM-dd")
+            current_time = QTime.currentTime().toString("hh:mm:ss")
+            current_datetime = current_date + " " + current_time
+            
+            # Match current user data to find all entries with the same data
+            txtID = self.txtID.text()
+            cmbxWO = self.txtIssue.currentText()
+            
+            df = self.load_matching_entries_from_db_2(txtID, cmbxWO, self.cursor)
+            
+            if df is not None and not df.empty:
+                # Get the last index of the DataFrame
+                last_index = df.index[-1]
+                print("Last index:", last_index)
+                
+                # Extract the ID from the DataFrame
+                entry_id = df.loc[last_index, 'ID']  # Assuming 'ID' is the column name for the primary key
+                
+                # Save pause data to the pause table
+                self.save_pause_data_to_db(entry_id, current_time, current_datetime)
             self.clear_input_fields()
             self.clear_input_fields_2()
         except Exception as e:
             QMessageBox.warning(self, "Error", f"An error occurred while updating pause start time: {str(e)}")
 
-
-    def calculate_total_time(self, txtID):
-        df = self.load_csv_data()
-        if df is not None:
-            # Filter the DataFrame for the specified ID
-            entries_for_id = df[df['ID'] == int(txtID)]
+    def calculate_total_time(self, DataID):
+        try:
+            # Execute SQL query to retrieve the sum of pause duration in seconds for the given DataID
+            self.cursor.execute("""
+                                SELECT SUM(Pause_Duration_seconds) 
+                                FROM Pause 
+                                WHERE DataIdx = ?
+                                """,
+                                (int(DataID),))
             
-            if not entries_for_id.empty:
-                # Select the latest entry for the ID
-                latest_entry = entries_for_id.iloc[-1]
-                print(latest_entry)
-                
-                start_time_str = latest_entry['Start Date Time']
-                end_time_str = latest_entry['End Date Time']
-                pause_start_time_str = latest_entry['Pause Start Date Time']
-                pause_end_time_str = latest_entry['Pause End Date Time']
-                
-                # Initialize pause_duration
-                pause_duration = 0
-                
-                # Check for NaN values and calculate pause duration
-                if pd.notna(pause_start_time_str) and pd.notna(pause_end_time_str):
-                    try:
-                        start_time = datetime.strptime(start_time_str, "%Y-%m-%d %H:%M:%S")
-                        end_time = datetime.strptime(end_time_str, "%Y-%m-%d %H:%M:%S")
-                        pause_start_time = datetime.strptime(pause_start_time_str, "%Y-%m-%d %H:%M:%S")
-                        pause_end_time = datetime.strptime(pause_end_time_str, "%Y-%m-%d %H:%M:%S")
-                        
-                        # Calculate pause duration
-                        pause_duration = (pause_end_time - pause_start_time).total_seconds() / 60
-                        
-                    except ValueError as e:
-                        print(f"Error parsing datetime: {e}")
-                
-                # Calculate total time excluding pause duration
-                try:
-                    start_time = datetime.strptime(start_time_str, "%Y-%m-%d %H:%M:%S")
-                    end_time = datetime.strptime(end_time_str, "%Y-%m-%d %H:%M:%S")
-                    
-                    total_time = (end_time - start_time).total_seconds() / 60 - pause_duration
-                    return total_time
-                    
-                except ValueError as e:
-                    print(f"Error parsing datetime: {e}")
-    
-        return None
+            # Fetch the result of the query
+            result = self.cursor.fetchone()
+            
+            # Extract the sum of pause duration seconds from the result
+            total_pause_time = result[0] if result and result[0] is not None else 0.0  
+            print(total_pause_time, 'total_pause_time')
+            
+            # Execute SQL query to calculate the total time duration in seconds
+            self.cursor.execute("""
+                                SELECT (strftime('%s', End_Date_Time) - strftime('%s', Start_Date_Time))
+                                FROM Data
+                                WHERE ID = ?
+                                """,
+                                (int(DataID),)
+            )
+            
+            # Fetch the result of the query
+            result = self.cursor.fetchone()
+
+            # Extract the total time duration in seconds from the result
+            total_time_seconds = result[0] if result and result[0] is not None else 0.0  
+
+            # Subtract pause duration from the total time duration
+            total_time_seconds -= total_pause_time
+
+            # Execute SQL query to update Total_Time_seconds in the Data table
+            self.cursor.execute("""
+                                UPDATE Data 
+                                SET 
+                                    Total_Time_seconds = ? 
+                                WHERE 
+                                    ID = ?
+                                """,
+                                (total_time_seconds, int(DataID)))
+            
+            # Calculate Total_Time_minutes in points
+            total_time_minutes = total_time_seconds / 60.0  # Assuming each second is equivalent to 1 point
+
+            # Execute SQL query to update Total_Time_minutes in the Data table
+            self.cursor.execute("""
+                                UPDATE Data 
+                                SET 
+                                    Total_Time_minutes = ? 
+                                WHERE 
+                                    ID = ?
+                                """,
+                                (total_time_minutes, int(DataID)))
+            
+            # Commit the transaction to save changes to the database
+            self.conn.commit()
+
+        except Exception as e:
+            print("An error occurred:", e)
+
+      
+        
 
 
 

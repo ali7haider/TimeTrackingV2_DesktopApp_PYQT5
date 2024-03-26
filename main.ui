@@ -943,7 +943,7 @@ Button */
 	border: 1px solid #EFEFEF;</string>
                      </property>
                      <property name="currentIndex">
-                      <number>2</number>
+                      <number>1</number>
                      </property>
                      <widget class="QWidget" name="dashboard"/>
                      <widget class="QWidget" name="timePage">
@@ -1259,6 +1259,77 @@ Button */
                                      </property>
                                      <property name="placeholderText">
                                       <string>Enter PT</string>
+                                     </property>
+                                    </widget>
+                                   </item>
+                                  </layout>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QFrame" name="frame_10">
+                                  <property name="frameShape">
+                                   <enum>QFrame::StyledPanel</enum>
+                                  </property>
+                                  <property name="frameShadow">
+                                   <enum>QFrame::Raised</enum>
+                                  </property>
+                                  <layout class="QHBoxLayout" name="horizontalLayout_12">
+                                   <property name="spacing">
+                                    <number>0</number>
+                                   </property>
+                                   <property name="leftMargin">
+                                    <number>0</number>
+                                   </property>
+                                   <property name="topMargin">
+                                    <number>0</number>
+                                   </property>
+                                   <property name="rightMargin">
+                                    <number>0</number>
+                                   </property>
+                                   <property name="bottomMargin">
+                                    <number>0</number>
+                                   </property>
+                                   <item>
+                                    <widget class="QLabel" name="label_6">
+                                     <property name="minimumSize">
+                                      <size>
+                                       <width>70</width>
+                                       <height>0</height>
+                                      </size>
+                                     </property>
+                                     <property name="text">
+                                      <string>Qty:</string>
+                                     </property>
+                                     <property name="alignment">
+                                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                                     </property>
+                                    </widget>
+                                   </item>
+                                   <item>
+                                    <widget class="QLineEdit" name="txtQty">
+                                     <property name="minimumSize">
+                                      <size>
+                                       <width>0</width>
+                                       <height>42</height>
+                                      </size>
+                                     </property>
+                                     <property name="styleSheet">
+                                      <string notr="true">
+#txtQty {
+    background-color: rgb(255, 255, 255);
+    color: rgb(0, 0, 0);
+    border: 1px solid grey;  /* Initially, set a transparent border */
+    font: bold 11pt &quot;Segoe UI&quot;;
+
+}
+
+#txtQty:focus {
+    border: 2px solid grey;  /* Change the border color when the button is focused/clicked */
+
+}</string>
+                                     </property>
+                                     <property name="placeholderText">
+                                      <string>Enter Qty</string>
                                      </property>
                                     </widget>
                                    </item>
